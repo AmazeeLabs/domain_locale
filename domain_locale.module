@@ -162,6 +162,22 @@ function domain_locale_delete_domain($domain_id) {
 }
 
 /**
+ * Reset Domain Locale settings to site language settings
+ *
+ * @param int $domain_id
+*/
+function domain_locale_restore_default($domain_id) {
+  if ($domain_id > 1) {
+    $enabled_languages = db_query('SELECT language, weight FROM {languages} WHERE enabled=1');
+    while ($lang = db_fetch_object($enabled_languages)) {
+      $default = $current_language == $language_default ? 1 : 0;
+      db_query("INSERT INTO {domain_locale}(language, domain_id, weight) VALUES
+      ('%s', %d, %d, %d)", $lang->language, $domain_id, $lang->weight);
+    }
+  }
+}
+
+/**
  * Remove a single language setting from {domain_locale}
  *
  * @param int $domain_id
@@ -226,14 +242,16 @@ function domain_locale_form_alter(&$form, $form_state, $form_id) {
     case 'domain_conf_form':
       $domain_id = $form['domain_id']['#value'];
       $languages = domain_locale_lookup($domain_id);
-      $default_options = $form['Language settings']['language_default']['#options'];
-      $options = $default_options;
-      foreach ($default_options as $key => $lang) {
-        if (!array_key_exists($key, $languages) && drupal_strlen($key) > 0) {
-          unset($options[$key]);
+      if (count($languages) > 0) {
+        $default_options = $form['Language settings']['language_default']['#options'];
+        $options = $default_options;
+        foreach ($default_options as $key => $lang) {
+          if (!array_key_exists($key, $languages) && drupal_strlen($key) > 0) {
+            unset($options[$key]);
+          }
         }
+        $form['Language settings']['language_default']['#options'] = $options;
       }
-      $form['Language settings']['language_default']['#options'] = $options;
       break;
 
     case 'domain_batch_form':
@@ -241,14 +259,16 @@ function domain_locale_form_alter(&$form, $form_state, $form_id) {
         foreach ($form['domain_batch'] as $key => $value) {
           if (is_int($key)) {
             $languages = domain_locale_lookup($key);
-            $default_options = $form['domain_batch'][$key]['#options'];
-            $options = $default_options;
-            foreach ($default_options as $langcode => $language) {
-              if (!array_key_exists($langcode, $languages) && drupal_strlen($langcode) > 0) {
-                unset($options[$langcode]);
+            if (count($languages) > 0) {
+              $default_options = $form['domain_batch'][$key]['#options'];
+              $options = $default_options;
+              foreach ($default_options as $langcode => $language) {
+                if (!array_key_exists($langcode, $languages) && drupal_strlen($langcode) > 0) {
+                  unset($options[$langcode]);
+                }
               }
+              $form['domain_batch'][$key]['#options'] = $options;
             }
-            $form['domain_batch'][$key]['#options'] = $options;
           }
         }
       }
