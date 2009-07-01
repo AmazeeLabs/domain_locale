@@ -172,7 +172,7 @@ function domain_locale_restore_default($domain_id) {
     while ($lang = db_fetch_object($enabled_languages)) {
       $default = $current_language == $language_default ? 1 : 0;
       db_query("INSERT INTO {domain_locale}(language, domain_id, weight) VALUES
-      ('%s', %d, %d, %d)", $lang->language, $domain_id, $lang->weight);
+      ('%s', %d, %d)", $lang->language, $domain_id, $lang->weight);
     }
   }
 }
