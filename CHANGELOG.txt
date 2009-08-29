@@ -1,5 +1,8 @@
 // $Id$
 
+28-AUG-09
+Do not redirect on the default domain
+
 02-JUN-09
 #478524 - missing domain_locale_restore_default() function
 #478526 - validate domain has languages set up before applying domain specific filtering
