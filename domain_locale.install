@@ -23,6 +23,12 @@ function domain_locale_install() {
       }
     }
   }
+  // Set domain_locale higher than i18n if it exists
+  $result = db_result(db_query("SELECT weight FROM {system} WHERE name = 'i18n'"));
+  if ($result) {
+    $weight = $result + 1;
+    $ret[] = update_sql("UPDATE {system} SET weight = ". $weight ." WHERE name = 'domain_locale'");
+  }
 }
 
 /**
@@ -66,4 +72,15 @@ function domain_locale_schema() {
     ),
   );
   return $schema;
+}
+
+function domain_locale_update_6101() {
+  $ret = array();
+  // Set domain_locale higher than i18n if it exists
+  $result = db_result(db_query("SELECT weight FROM {system} WHERE name = 'i18n'"));
+  if ($result) {
+    $weight = $result + 1;
+    $ret[] = update_sql("UPDATE {system} SET weight = ". $weight ." WHERE name = 'domain_locale'");
+  }
+  return $ret;
 }

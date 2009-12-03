@@ -1,5 +1,8 @@
 // $Id$
 
+02-DEC-09
+#632372 - Change module weight to be higher than i18n so that hook_translation_link_alter() executes in proper order
+
 28-AUG-09
 Do not redirect on the default domain
 
