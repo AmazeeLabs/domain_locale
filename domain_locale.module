@@ -48,7 +48,7 @@ function domain_locale_menu() {
  * Implements hook_domainlinks()
  */
 function domain_locale_domainlinks($domain) {
-  if ($domain['domain_id'] > 0) {
+  if (isset($domain['domain_id'])) {
     $links[] = array(
       'title' => t('languages'),
       'path' => 'admin/build/domain/language/'. $domain['domain_id']
@@ -64,7 +64,7 @@ function domain_locale_domainlinks($domain) {
 function domain_locale_translation_link_alter($links, $path) {
   global $_domain, $language;
   //Ignore settings for the default domain
-  if ($_domain['domain_id'] > 0) {
+  if (isset($_domain['domain_id'])) {
     $domain_locale = domain_locale_lookup($_domain['domain_id']);
     //Fallback case where for some reason domain language is not specified
     if (count($domain_locale) < 1) {
@@ -195,7 +195,7 @@ function domain_locale_delete_domain_language($domain_id, $langcode) {
  * Multidimensional array of language elements where language, weight and default are array keys
  */
 function domain_locale_insert_domain($domain_id, $params = array()) {
-  if (count($params) > 0 && $domain_id > 0) {
+  if (count($params) > 0) {
     foreach ($params as $setting) {
       //Setting must have at least language defined, weight and default can have default values
       if (isset($setting['language'])) {

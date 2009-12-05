@@ -13,7 +13,7 @@
  *  The $domain object created by domain_lookup().
  */
 function domain_locale_page($domain) {
-  if (!empty($domain['domain_id'])) {
+  if (isset($domain['domain_id'])) {
     // Ensure we are on the proper domain.
     domain_goto($domain);
 
