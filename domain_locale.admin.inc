@@ -35,8 +35,9 @@ function domain_locale_page($domain) {
 function domain_locale_languages_overview_form($type = 'all', $domain_id) {
   $languages = language_list('language', TRUE);
   $domain_languages = domain_locale_lookup($domain_id);
-  $default_language = domain_conf_variable_get($domain_id, 'language_default');
-  $domain_default = isset($default_language) ? $default_language : language_default('language');
+  $default_domain_language = domain_conf_variable_get($domain_id, 'language_default');
+  $default_install_language = language_default('language');
+  $domain_default = isset($default_domain_language) ? $default_domain_language : $default_install_language->language;
   $options = array();
   $form['domain_id'] = array(
     '#type' => 'value',
@@ -112,8 +113,9 @@ function domain_locale_languages_overview_form_submit($form, &$form_state) {
     domain_locale_delete_domain($domain_id);
   }
   $languages = language_list();
-  $default_language = domain_conf_variable_get($domain_id, 'language_default');
-  $domain_default = isset($default_language) ? $default_language : language_default('language');
+  $default_domain_language = domain_conf_variable_get($domain_id, 'language_default');
+  $default_install_language = language_default('language');
+  $domain_default = isset($default_domain_language) ? $default_domain_language : $default_install_language->language;
   $default = $form_state['values']['site_default'];
   //Construct the array for inserts and updates. Looping over existing languages list.
   $params = array();

@@ -1,4 +1,8 @@
 // $Id$
+
+14-JAN-10
+672460 - Clicking on language link in domain overview crashes Apache
+
 04-DEC-09
 #650294 -  Allow language toggle for main domain by agentrickard
 
