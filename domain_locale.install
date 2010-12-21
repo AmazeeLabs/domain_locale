@@ -13,6 +13,7 @@ function domain_locale_install() {
   drupal_install_schema('domain_locale');
   // Make all enabled languages available on all domains by default
   $enabled_languages = db_query('SELECT language, weight FROM {languages} WHERE enabled=1');
+  module_load_include('module', 'domain');
   $existing_domains = domain_domains();
   while ($lang = db_fetch_object($enabled_languages)) {
     $current_language = $lang->language;
