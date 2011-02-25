@@ -1,4 +1,3 @@
-// $Id$
 
 14-JAN-10
 672460 - Clicking on language link in domain overview crashes Apache
