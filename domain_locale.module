@@ -30,7 +30,7 @@ function domain_locale_init() {
 }
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function domain_locale_help($path, $arg) {
   switch ($path) {
@@ -41,7 +41,7 @@ function domain_locale_help($path, $arg) {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  *
  * Domain Locale only provides administrative menu items.
  */
@@ -68,7 +68,7 @@ function domain_locale_menu() {
 }
 
 /**
- * Implements hook_domainlinks()
+ * Implements hook_domainlinks().
  */
 function domain_locale_domainlinks($domain) {
   if (isset($domain['domain_id'])) {
@@ -121,7 +121,7 @@ function domain_locale_translation_link_alter($links, $path) {
 }
 
 /**
- * Implements hook_theme()
+ * Implements hook_theme().
  */
 function domain_locale_theme() {
   $themes = array(
@@ -265,7 +265,7 @@ function domain_locale_list($reset = FALSE) {
 }
 
 /**
- * Implements hook_domainwarnings()
+ * Implements hook_domainwarnings().
  */
 function domain_locale_domainwarnings() {
   $forms =  array(
@@ -275,7 +275,7 @@ function domain_locale_domainwarnings() {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
  */
 function domain_locale_form_alter(&$form, $form_state, $form_id) {
   //echo $form_id;

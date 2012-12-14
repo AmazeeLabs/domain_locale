@@ -30,9 +30,10 @@ function domain_locale_form($form, &$form_state, $domain, $arguments = array()) 
   $form['domain_id'] = array('#type' => 'value', '#value' => $domain['domain_id']);
   $record_edit_url = 'admin/structure/domain/' . ($domain['domain_id'] == 0 ? '' : 'view/' . $domain['domain_id']);
 
+  $link = l($domain['subdomain'], $record_edit_url);
   $form['domain'] = array(
     '#type' => 'markup',
-    '#markup' => t('Enabled languages for <a href="!url"%title</a>', array('!url' => url($record_edit_url), '%title' => $domain['subdomain'])),
+    '#markup' => t('Enabled languages for !link', array('!link' => filter_xss($link))),
   );
 
   $languages = language_list('language', TRUE);
@@ -52,11 +53,11 @@ function domain_locale_form($form, &$form_state, $domain, $arguments = array()) 
     );
     $form['domain_language'][$langcode]['title'] = array(
       '#type' => 'value',
-      '#value' => $language->name,
+      '#value' => filter_xss_admin($language->name),
     );
     $form['domain_language'][$langcode]['langcode'] = array(
       '#type' => 'value',
-      '#value' => $langcode,
+      '#value' => filter_xss_admin($langcode),
     );
     $form['domain_language'][$langcode]['enabled'] = array(
       '#type' => 'checkbox',
@@ -69,13 +70,16 @@ function domain_locale_form($form, &$form_state, $domain, $arguments = array()) 
     $form['domain_language'][$langcode]['site_default'] = array(
       '#type' => 'radio',
       '#return_value' => $langcode,
-      '#attributes' => ($domain_default == $langcode) ? array('checked' => 'checked', 'name' => 'domain_languages[site_default]') : array('name' => 'domain_languages[site_default]'),
+      '#attributes' => ($domain_default == $langcode)
+         ? array('checked' => 'checked', 'name' => 'domain_languages[site_default]')
+         : array('name' => 'domain_languages[site_default]'),
     );
   }
 
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save languages'));
   return $form;
 }
+
 /**
  * Form theming.
  */
