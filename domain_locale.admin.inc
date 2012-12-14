@@ -124,7 +124,6 @@ function domain_locale_form_submit($form, &$form_state) {
   $default_domain_language = domain_conf_variable_get($domain_id, 'language_default');
   $default_install_language = language_default('language');
   $default = isset($default_domain_language) ? $default_domain_language : $default_install_language;
-  dpm($form_state['input']);
   $default = $form_state['input']['domain_languages']['site_default'];
 
   //Construct the array for inserts and updates. Looping over existing languages list.
