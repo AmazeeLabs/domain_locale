@@ -402,3 +402,190 @@ function domain_locale_language_load($langcode) {
   $lang = db_query("SELECT language, name, native, direction, enabled, plurals, formula, domain, prefix, javascript, weight FROM {languages} WHERE enabled = 1 AND language = ':lang'", array(':lang' => $langcode));
   return $lang;
 }
+
+/**
+ * Implements hook_features_api().
+ */
+function domain_locale_features_api() {
+  $components = array(
+    'domain_locale' => array(
+      'name' => t('Domain locales'),
+      'default_hook' => 'domain_locale_default_locales',
+      'default_file' => FEATURES_DEFAULTS_CUSTOM,
+      'default_filename' => 'locales',
+      'features_source' => TRUE,
+      'file' => drupal_get_path('module', 'domain_locale') . '/domain_locale.features.inc',
+    ),
+  );
+  return $components;
+}
+
+/**
+ * Implements hook_hook_info().
+ *
+ * Allows the use of $module.domain.inc files.
+ */
+function domain_locale_hook_info() {
+  $hooks['domain_locale_lookup'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_language_list'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_delete_domain'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_restore_default'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_delete_domain_language'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_insert_domain'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_list'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_languages_delete_submit'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_features_export'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_features_export_options'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_features_export_render'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_features_revert'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_features_rebuild'] = array(
+    'group' => 'domain_locale',
+  );
+  $hooks['domain_locale_install'] = array(
+    'group' => 'domain_locale',
+  );
+
+
+  return $hooks;
+}
+/**
+ * Features doesn't know how to load custom includes.
+ *
+ * @param $module
+ *  The name of the feature to load.
+ * @param $hook
+ *  The name of the Domain Locale hook.
+ * @param $return
+ *  Boolean indicator to return the results of the function.
+ *
+ * @return
+ *  The results of the $hook implemenation, if requested.
+ */
+function domain_locale_features_load($module, $hook, $return = TRUE) {
+  // Features does not handle module loading of custom files.
+  module_load_include('inc', $module, $module . '.locales');
+  $function = $module . '_' . $hook;
+  if ($return && function_exists($function)) {
+    return $function();
+  }
+}
+
+/**
+ * Sets domain export options consistently.
+ *
+ * @return
+ *  An array of form options. Not that we cannot use _ in keys.
+ */
+function domain_locale_features_get_options() {
+  $options = array(
+    'wipe-domain-locale-tables' => t('Wipe tables on revert/rebuild'),
+    'all-locales' => t('Export all domain locales'),
+  );
+  foreach (domain_locale_list(FALSE) as $domain_id => $languages) {
+    $this_domain = domain_lookup($domain_id);
+    foreach ($languages as $language => $weight) {
+      $options[$this_domain['machine_name'] . '__locale-placeholder__' . $language] = $this_domain['subdomain'] . '/' . $language;
+    }
+  }
+  return $options;
+}
+
+/**
+ * Processes export data selections consistently.
+ *
+ * @param $data
+ *  Array of selections from the features component form.
+ *
+ * @return
+ *  An array of domains, keyed by machine_name.
+ */
+function domain_locale_features_selection($data) {
+  if (!empty($data['all-locales'])) {
+    $data = array();
+    // list all domain locales
+    foreach (domain_locale_list(FALSE) as $domain_id => $languages) {
+      $this_domain = domain_lookup($domain_id);
+      foreach ($languages as $language => $weight) {
+        $data[$this_domain['machine_name'] . '__locale-placeholder__' . $language] = $this_domain['machine_name'] . '__locale-placeholder__' . $language;
+      }
+    }
+  }
+  return $data;
+}
+
+/**
+ * Tells Features revert whether to perform a wipe/rebuild.
+ *
+ * @param &$defaults
+ *  The default values from the feature, passed by reference.
+ *
+ * @return boolean
+ */
+function domain_locale_features_wipe_tables(&$defaults) {
+  if (!empty($defaults['wipe-domain-locale-tables'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Tells Features export how to process a wipe/rebuild statement to code.
+ *
+ * @param &$data
+ *  The data for the feature, passed by reference.
+ * @param $code
+ *  The code array to export, passed by reference.
+ * @param $export
+ *  Boolean indicator that we are generator (exporting) or testing code.
+ * @param $type
+ *  A string indicating the type of domain data to export.
+ *
+ * @return boolean
+ */
+function domain_locale_features_export_wipe_tables_code(&$data, &$code, $export, $type) {
+  if ((!empty($export) && !empty($data['wipe-domain-locale-tables'])) || in_array('wipe-domain-locale-tables', $data)) {
+    $code[] = "  \${$type}['wipe-domain-locale-tables'] = 'wipe-domain-locale-tables';";
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Tells Features export how to set a wipe/rebuild statement in the $data.
+ *
+ * @param &$export
+ *  The feature component $export array, passed by reference.
+ * @param $data
+ *  The data for the feature.
+ * @param $type
+ *  A string indicating the type of domain data to export.
+ */
+function domain_locale_features_export_set_wipe_tables(&$export, $data, $type) {
+  if (in_array('wipe-domain-locale-tables', $data)) {
+    $export['features'][$type]['wipe-domain-locale-tables'] = 'wipe-domain-locale-tables';
+  }
+}
