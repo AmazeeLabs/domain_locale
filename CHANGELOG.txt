@@ -1,3 +1,12 @@
+Domain Locale 7.x-1.x,        2013-01-08
+----------------------------------------
+- by benoit.pointet: add drush commands
+
+Domain Locale 7.x-1.0-alpha4, 2012-12-09
+----------------------------------------
+
+- by fgm: fix security on FAPI. Fix coding standards
+
 Domain Locale 7.x-1.0-alpha3, 2012-12-08
 ----------------------------------------
 
