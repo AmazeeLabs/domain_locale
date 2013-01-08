@@ -38,7 +38,7 @@ function domain_locale_drush_command() {
  * @return
  *   Nothing if ok, or an error message.
  */
-function drush_domain_locale_domain_locale_set($subdomain, $lang_prefixes) {
+function drush_domain_locale_set($subdomain, $lang_prefixes) {
   // validate subdomain, get domain_id
   $machine_name = domain_machine_name($subdomain);
   $domain = domain_machine_name_load($machine_name);
