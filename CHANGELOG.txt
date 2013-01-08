@@ -1,8 +1,3 @@
-Domain Locale 7.x-1.0-alpha4, 2012-12-09
-----------------------------------------
-
-- by fgm: fix security on FAPI. Fix coding standards
-
 Domain Locale 7.x-1.0-alpha3, 2012-12-08
 ----------------------------------------
 
