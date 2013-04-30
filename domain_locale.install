@@ -28,6 +28,14 @@ function domain_locale_install() {
       }
     }
   }
+
+  // Make all languages enabled under the hood
+  db_update('languages')
+    ->fields(array(
+      'enabled' => 1,
+    ))
+    -> execute();
+
   // Set domain_locale higher than i18n if it exists
   $result = db_query("SELECT weight FROM {system} WHERE name = 'i18n'")->fetch();
   if ($result) {

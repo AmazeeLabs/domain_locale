@@ -30,9 +30,10 @@ function domain_locale_form($form, &$form_state, $domain, $arguments = array()) 
   $form['domain_id'] = array('#type' => 'value', '#value' => $domain['domain_id']);
   $record_edit_url = 'admin/structure/domain/' . ($domain['domain_id'] == 0 ? '' : 'view/' . $domain['domain_id']);
 
+  $link = l($domain['subdomain'], $record_edit_url);
   $form['domain'] = array(
     '#type' => 'markup',
-    '#markup' => t('Enabled languages for <a href="!url"%title</a>', array('!url' => url($record_edit_url), '%title' => $domain['subdomain'])),
+    '#markup' => t('Enabled languages for !link', array('!link' => filter_xss($link))),
   );
 
   $languages = language_list('language', TRUE);
@@ -52,11 +53,11 @@ function domain_locale_form($form, &$form_state, $domain, $arguments = array()) 
     );
     $form['domain_language'][$langcode]['title'] = array(
       '#type' => 'value',
-      '#value' => $language->name,
+      '#value' => filter_xss_admin($language->name),
     );
     $form['domain_language'][$langcode]['langcode'] = array(
       '#type' => 'value',
-      '#value' => $langcode,
+      '#value' => filter_xss_admin($langcode),
     );
     $form['domain_language'][$langcode]['enabled'] = array(
       '#type' => 'checkbox',
@@ -69,13 +70,16 @@ function domain_locale_form($form, &$form_state, $domain, $arguments = array()) 
     $form['domain_language'][$langcode]['site_default'] = array(
       '#type' => 'radio',
       '#return_value' => $langcode,
-      '#attributes' => ($domain_default == $langcode) ? array('checked' => 'checked', 'name' => 'domain_languages[site_default]') : array('name' => 'domain_languages[site_default]'),
+      '#attributes' => ($domain_default == $langcode)
+        ? array('checked' => 'checked', 'name' => 'domain_languages[site_default]')
+        : array('name' => 'domain_languages[site_default]'),
     );
   }
 
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save languages'));
   return $form;
 }
+
 /**
  * Form theming.
  */
@@ -120,10 +124,6 @@ function domain_locale_form_submit($form, &$form_state) {
   if (is_array($check) && count($check) >=1) {
     domain_locale_delete_domain($domain_id);
   }
-  $languages = language_list();
-  $default_domain_language = domain_conf_variable_get($domain_id, 'language_default');
-  $default_install_language = language_default('language');
-  $default = isset($default_domain_language) ? $default_domain_language : $default_install_language;
   $default = $form_state['input']['domain_languages']['site_default'];
 
   //Construct the array for inserts and updates. Looping over existing languages list.
@@ -175,9 +175,15 @@ function domain_locale_reset($domain) {
  * @return
  * Themed HTML form.
  */
-function domain_locale_reset_form($form_state, $domain) {
-  $extra['domain_id'] = array('#type' => 'value', '#value' => $domain['domain_id']);
-  $form = confirm_form($extra, t('Are you sure you wish to reset languages for %name?', array('%name' => $domain['sitename'])), 'admin/build/domain/language/' . $domain['domain_id'], t('Submitting this form will apply default domain languages for this domain.'));
+function domain_locale_reset_form($form, $form_state, $domain) {
+  $extra['domain_id'] = array(
+    '#type' => 'value',
+    '#value' => isset($domain['domain_id']) ? $domain['domain_id'] : NULL,
+  );
+  $form = confirm_form($extra,
+    t('Are you sure you wish to reset languages for %name?', array('%name' => $domain['sitename'])),
+    'admin/build/domain/language/' . $domain['domain_id'],
+    t('Submitting this form will apply default domain languages for this domain.'));
   return $form;
 }
 

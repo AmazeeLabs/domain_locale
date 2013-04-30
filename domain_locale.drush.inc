@@ -1,8 +1,8 @@
-<?php
+<?phpgit
 
 /**
  * @file
- * Drush commands for Domain Access.
+ * Drush commands for Domain Locale.
  */
 
 /**
@@ -36,36 +36,42 @@ function domain_locale_drush_command() {
  *   The prefixes of the languages to enable
  *
  * @return
- *   Nothing if ok, or an error message.
+ *   Void if OK, or an error message.
  */
-function drush_domain_locale_set($subdomain, $lang_prefixes) {
-  // validate subdomain, get domain_id
+function drush_domain_locale_domain_locale_set($subdomain, $lang_prefixes) {
+  // Validate subdomain, get domain_id.
   $machine_name = domain_machine_name($subdomain);
   $domain = domain_machine_name_load($machine_name);
-  if (! $domain) {
-    return drush_set_error('domain_locale', sprintf("Domain %s not found.", $subdomain));
+  if (!$domain) {
+    return drush_set_error('domain_locale', dt("Domain @subdomain not found.", array(
+      '@subdomain' => $subdomain,
+    )));
   }
   $domain_id = $domain['domain_id'];
 
-  // get and validate languages for the domain
+  // Get and validate languages for the domain.
   $langs = explode(" ", $lang_prefixes);
   $available_languages = language_list();
   foreach ($langs as $lang) {
     if (! isset($available_languages[$lang])) {
-      return drush_set_error('domain_locale', sprintf("Language %s not available.", $lang));
+      return drush_set_error('domain_locale', dt("Language @language not available.", array(
+        '@language' => $lang,
+      )));
     }
   }
 
-  // get and validate default language
-  $default = (drush_get_option('default')) ? drush_get_option('default') : null;
+  // Get and validate default language.
+  $default = (drush_get_option('default')) ? drush_get_option('default') : NULL;
   if ($default && !in_array($default, $langs)) {
-    return drush_set_error('domain_locale', sprintf("Default language '%s' must be present in 'languages' parameter.", $default));
+    return drush_set_error('domain_locale', dt("Default language '@language' must be present in 'languages' parameter.", array(
+      '@language' => $default,
+    )));
   }
   if (!$default && count($langs) == 1) {
     $default = $lang;
   }
 
-  // update db
+  // Update db
   $params = array();
   foreach ($langs as $lang) {
     $params[] = array('language' => $lang);
@@ -77,8 +83,10 @@ function drush_domain_locale_set($subdomain, $lang_prefixes) {
     domain_conf_variable_set($domain_id, 'language_default', $default);
   }
 
-  // clear cache
+  // Clear cache.
   cache_clear_all('*', 'cache_page', TRUE);
 
-  drush_log(sprintf("Locale settings updated for %s", $subdomain), 'ok');
+  drush_log(dt("Locale settings updated for @subdomain", array(
+    '@subdomain' => $subdomain,
+  )), 'ok');
 }
