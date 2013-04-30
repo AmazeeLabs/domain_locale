@@ -1,5 +1,7 @@
-Domain Locale 7.x-1.x,        2013-01-08
+Domain Locale 7.x-1.0-beta1, 2013-30-04
 ----------------------------------------
+- by Mac_Weber: changed instructions on README.git
+- by Mac_Weber, FGM: many code improvements. Huge code rewrite.git
 - by benoit.pointet: add drush commands
 
 Domain Locale 7.x-1.0-alpha4, 2012-12-09
