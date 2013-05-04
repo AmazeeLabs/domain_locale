@@ -1,4 +1,4 @@
-<?phpgit
+<?php
 
 /**
  * @file
@@ -28,6 +28,17 @@ function domain_locale_drush_command() {
 }
 
 /**
+ * Implements hook_drush_help().
+ */
+function domain_locale_drush_help($section) {
+  $items = domain_locale_drush_command();
+  $name = $sectionpscp;
+  if (isset($items[$name])) {
+    return dt($items[$name]['description']);
+  }
+}
+
+/**
  * Add a language to a site.
  *
  * @param $subdomain
@@ -38,7 +49,13 @@ function domain_locale_drush_command() {
  * @return
  *   Void if OK, or an error message.
  */
-function drush_domain_locale_domain_locale_set($subdomain, $lang_prefixes) {
+function drush_domain_locale_set($subdomain = NULL, $lang_prefixes = NULL) {
+  if (is_null($subdomain)) {
+    return drush_set_error('domain_locale', dt('You must specify a domain machine name.'));
+  }
+  if (is_null($lang_prefixes)) {
+    return drush_set_error('domain_locale', dt('You must specify at least one language.'));
+  }
   // Validate subdomain, get domain_id.
   $machine_name = domain_machine_name($subdomain);
   $domain = domain_machine_name_load($machine_name);
@@ -69,6 +86,10 @@ function drush_domain_locale_domain_locale_set($subdomain, $lang_prefixes) {
   }
   if (!$default && count($langs) == 1) {
     $default = $lang;
+    drush_log(dt("Default language for @subdomain automatically set as '@lang'.", array(
+      '@subdomain' => $subdomain,
+      '@lang'      => $lang,
+    )), 'ok');
   }
 
   // Update db
