@@ -1,5 +1,6 @@
-Domain Locale 7.x-1.x-dev, 2013-05-06
+Domain Locale 7.x-1.0-beta3, 2013-05-06
 ----------------------------------------
+- by Mac_Weber: new instructions at README.txt
 - by Mac_Weber, joebest: Provide 'Language neutral' as an available option.
 
 Domain Locale 7.x-1.0-beta2, 2013-03-05
@@ -8,7 +9,7 @@ Domain Locale 7.x-1.0-beta2, 2013-03-05
 
 Domain Locale 7.x-1.0-beta1, 2013-30-04
 ----------------------------------------
-- by Mac_Weber: changed instructions on README.git
+- by Mac_Weber: changed instructions on README.txt
 - by Mac_Weber, FGM: many code improvements. Huge code rewrite.git
 - by benoit.pointet: add drush commands
 
