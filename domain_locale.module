@@ -230,7 +230,8 @@ function domain_locale_form_alter(&$form, $form_state, $form_id) {
  * @see domain_locale_form_node_form_alter()
  *
  * @return
- *   Array language names indexed by language code
+ *   Array language names indexed by language code. This array does not include
+ *  'und' (Language neutral).
  */
 function domain_locale_get_domain_languages() {
   global $_domain;
@@ -257,7 +258,7 @@ SQL;
 function domain_locale_help($path, $arg) {
   switch ($path) {
     case 'admin/help#domain_locale':
-      $ret = t('Domain Access Locale');
+      $ret = t('Domain Locale');
       break;
 
     default:
@@ -750,11 +751,20 @@ function domain_locale_form_node_form_alter(&$form, $form_state) {
 function _domain_locale_form_node_form_alter($form, &$form_state) {
   global $user;
 
-  //If user is admin then display all languages
-  if (in_array(variable_get('user_admin_role', 'administrator'), array_values($user->roles))) {
+  // Check if user is admin. If so, then change nothing.
+  if (in_array(variable_get('user_admin_role'), array_keys($user->roles))) {
     return $form;
   }
 
-  $form['language']['#options'] = domain_locale_get_domain_languages();
+  // Check if there is there is to option of 'Language neutral' and keep it.
+  if (isset($form['language']['#options']['und'])) {
+    $tip['und'] = $form['language']['#options']['und'];
+  }
+  else {
+    $tip = array();
+  }
+  // Build a new options list eliminating the languages that don't belong to
+  // this domain
+  $form['language']['#options'] = $tip + domain_locale_get_domain_languages();
   return $form;
 }
