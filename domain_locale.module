@@ -293,7 +293,15 @@ function domain_locale_init() {
       else {
         $http = 'http://';
       }
-      drupal_goto($http . $_domain['subdomain'] . '/' . $language_default->prefix);
+      // Set URL suffix to the language prefix, if available.
+      if (isset($language_default->prefix)) {
+        $url_suffix = '/' . $language_default->prefix;
+      }
+      else {
+        $url_suffix = '';
+      }
+
+      drupal_goto($http . $_domain['subdomain'] . $url_suffix);
     }
   }
 }
