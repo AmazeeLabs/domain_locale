@@ -281,7 +281,7 @@ function domain_locale_init() {
   $enabled_domain_langs = domain_locale_lookup($_domain['domain_id']);
   // If the user lang is not supported.
   if ($enabled_domain_langs && !isset($enabled_domain_langs[$language->language])) {
-    $language_default = language_default();
+    $language_default = domain_locale_language_default();
     if ($language_default) {
       $languages = language_list();
       // Set the current language to the default language.
@@ -293,7 +293,7 @@ function domain_locale_init() {
       else {
         $http = 'http://';
       }
-      drupal_goto($http . $_domain['subdomain']);
+      drupal_goto($http . $_domain['subdomain'] . '/' . $language_default->prefix);
     }
   }
 }
