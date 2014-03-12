@@ -293,7 +293,10 @@ function domain_locale_init() {
       else {
         $http = 'http://';
       }
-      drupal_goto($http . $_domain['subdomain']);
+      // Add the language as the prefix.
+      // @todo: This will not work if the language as prefix detection is not
+      // enabled.
+      drupal_goto($http . $_domain['subdomain'] . '/' . $language->prefix);
     }
   }
 }
