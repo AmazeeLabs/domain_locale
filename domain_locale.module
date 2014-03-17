@@ -492,8 +492,9 @@ function domain_locale_menu() {
  * @param int $domain_id
  */
 function domain_locale_restore_default($domain_id) {
-  $enabled_languages = db_query('SELECT language, weight FROM {languages} WHERE enabled =   1');
-  db_truncate('domain_locale')
+  $enabled_languages = db_query('SELECT language, weight FROM {languages} WHERE enabled = 1');
+  db_delete('domain_locale')
+    ->condition('domain_id', $domain_id)
     ->execute();
   foreach ($enabled_languages as $lang) {
     db_insert('domain_locale')
