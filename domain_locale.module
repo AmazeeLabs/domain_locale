@@ -522,6 +522,10 @@ function domain_locale_theme($existing, $type, $theme, $path) {
   foreach ($themes as $element => $info) {
     $info['file'] = $admin_file;
   }
+  $themes['domain_locale_all_languages'] = array(
+    'variables' => array('domains' => array()),
+    'template' => 'theme/domain_locale_all_languages',
+  );
   return $themes;
 }
 
@@ -544,6 +548,52 @@ function afdl_reviewed_limit__________________________________________() {}
 function domain_locale_language_switch_links_alter(array &$links, $type, $path) {
   global $_domain;
   $languages = domain_locale_lookup($_domain['domain_id']);
+
+  // If we show the language switcher, then we have to alter the links a bit.
+  if ($type == 'language') {
+    // For all the links we have at the moment, we add the machine name of the
+    // current domain as class.
+    foreach ($links as $key => $link) {
+      $links[$key]['attributes']['class']['domain_name'] = $_domain['machine_name'];
+    }
+    // If we are on the default domain, then we show a 'more' link, to lead to
+    // the page where the user can see all the domains and languages.
+    if ($_domain['machine_name'] == 'international') {
+      $links['more'] = array(
+        'href' => 'all_languages',
+        'title' => t('More...'),
+        'attributes' => array(
+          'class' => array('language-link'),
+        ),
+      );
+      // Make sure that the 'more' key is allowed, otherwise it will be filtered.
+      $languages['more'] = array('weight' => 0);
+    }
+    else {
+      // If we are not on the global, then we show also the languages of the
+      // international (main) domain.
+      $default_domain = domain_load(domain_load_domain_id('international'));
+      $additional_languages = domain_locale_lookup($default_domain['domain_id']);
+      // If we have additional languages to show, make sure they are at the end.
+      if (!empty($additional_languages)) {
+        foreach ($additional_languages as $key => $value) {
+          $lang = $links[$key];
+          unset($links[$key]);
+          $links[$key] = $lang;
+          $links[$key]['attributes']['class']['domain_name'] = $default_domain['machine_name'];
+          // We also have to change the path of the link to be absolute, because
+          // these languages are not available on this domain, but only on the
+          // international domain.
+          if ($links[$key]['href'] == '<front>') {
+            $links[$key]['href'] = '';
+          }
+          $links[$key]['href'] = $default_domain['path'] . $lang['language']->prefix . '/' . $links[$key]['href'];
+        }
+        // Add the additional languages to the allowed languages.
+        $languages = array_merge($languages, $additional_languages);
+      }
+    }
+  }
   $links = array_intersect_key($links, $languages);
 }
 
@@ -770,4 +820,22 @@ function _domain_locale_form_node_form_alter($form, &$form_state) {
   // this domain
   $form['language']['#options'] = $tip + domain_locale_get_domain_languages();
   return $form;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function domain_locale_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+  * Implementation of hook_ctools_plugin_api().
+  */
+function domain_locale_ctools_plugin_api($module, $api) {
+  if ($module == 'page_manager' && $api == 'pages_default') {
+    return array('version' => 1);
+  }
 }
