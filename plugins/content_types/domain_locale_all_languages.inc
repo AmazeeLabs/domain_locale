@@ -47,9 +47,16 @@ function domain_locale_all_languages_render($subtype, $conf, $args, $context) {
   $domains = domain_domains();
   $all_languages = language_list('enabled');
   foreach ($domains as $domain) {
+    // Small hack: if we have a variant, then use its path instead (if the first
+    // variant in the list).
+    $path = $domain['path'];
+    if (!empty($domain['variants'])) {
+      $variant = reset($domain['variants']);
+      $path = $domain['scheme'] . '://' . $variant->path . '/';
+    }
     $variables['domains'][$domain['machine_name']] = array(
       'name' => $domain['sitename'],
-      'path' => $domain['path'],
+      'path' => $path,
       'machine_name' => $domain['machine_name'],
     );
     $languages = domain_locale_lookup($domain['domain_id']);
