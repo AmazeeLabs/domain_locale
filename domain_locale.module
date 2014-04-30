@@ -278,6 +278,10 @@ function domain_locale_help($path, $arg) {
 function domain_locale_init() {
   global $language, $_domain;
 
+  // Skip the paths that start with 'sites/default'. They could be image styles.
+  if (strpos($_GET['q'], 'sites/default/files') === 0) {
+    return;
+  }
   $enabled_domain_langs = domain_locale_lookup($_domain['domain_id']);
   // If the user lang is not supported.
   if ($enabled_domain_langs && !isset($enabled_domain_langs[$language->language])) {
