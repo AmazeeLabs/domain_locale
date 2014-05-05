@@ -297,10 +297,21 @@ function domain_locale_init() {
       else {
         $http = 'http://';
       }
-      // Add the language as the prefix.
-      // @todo: This will not work if the language as prefix detection is not
-      // enabled.
-      drupal_goto($http . $_domain['subdomain'] . '/' . $language->prefix);
+
+      // If we have variants, redirect to the first one.
+      if (!empty($_domain['variants'])) {
+        $variant = reset($_domain['variants']);
+        // Add the language as the prefix.
+        // @todo: This will not work if the language as prefix detection is not
+        // enabled.
+        $path = $http . $variant->path . '/' . $language->prefix;
+      }
+      // Also, keep the current page and any other parameters.
+      if (!empty($_GET['q'])) {
+        $path .= '/' . $_GET['q'];
+      }
+      $query = drupal_get_query_parameters();
+      drupal_goto($path, array('query' => $query));
     }
   }
 }
