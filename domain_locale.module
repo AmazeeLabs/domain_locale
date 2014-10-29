@@ -278,6 +278,10 @@ function domain_locale_help($path, $arg) {
 function domain_locale_init() {
   global $language, $_domain;
 
+  if (drupal_is_cli()) {
+    return;
+  }
+
   // Skip the paths that start with 'sites/default'. They could be image styles.
   if (strpos($_GET['q'], 'sites/default/files') === 0) {
     return;
