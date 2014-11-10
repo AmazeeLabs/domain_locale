@@ -5,18 +5,24 @@ Requirements:
   You can leave the setting to "Path prefix with language fallback" but the
   language fallback will be overwritten.
 
+Recommended:
+- Use the module Drush Language Commands to add/remove languages:
+  https://www.drupal.org/project/drush_language
+
 Optional:
 - make sure all languages have a prefix (by default English does not). This
   gives unique URLS for all languages.
 
 Configuration:
-- ALWAYS edit the available languages for a domain at:
-  /admin/structure/domain/view/[domain_id]/language
-- NEVER disable languages at:
-  /admin/config/regional/language
-- You can get more information about it at https://drupal.org/node/2011804
+- Add/Remove languages:
+  - via the UI:
+    /admin/config/regional/language
+  - or using the module drush_language
+    https://www.drupal.org/project/drush_language
+- Edit the available languages for a domain:
+    - via the UI:
+        /admin/structure/domain/view/[domain_id]/language
+    - via drush:
+        domain-locale-set [domain_machine_name] '[list of language codes]' --defalt=[language_code]
+        Eg.: domain-locale-set usa.example.com 'en es' --default=en
 
-This module provides drush integration.
-Syntax:
-domain-locale-setdomain_machine_name 'list of language codes' --defalt=language code
-Eg.: domain-locale-set usa.example.com 'en es' --default=en

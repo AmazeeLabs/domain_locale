@@ -164,10 +164,11 @@ function domain_locale_domain_insert($domain) {
 /**
  * Implements hook_domain_warnings_alter().
  *
- * - domain sends to admin/structure/domain/view/%domain_id/config instead
+ * Remove warning message from module Domain. Improved message is provided by
+ * the module Domain Locale for this the form locale_languages_overview_form.
  */
 function domain_locale_domain_warnings_alter(&$forms) {
-  $forms['locale_languages_overview_form'] = 'admin/structure/domain/view/%domain_id/language';
+  unset($forms['locale_languages_overview_form']);
 }
 
 /**
@@ -175,10 +176,9 @@ function domain_locale_domain_warnings_alter(&$forms) {
  *
  * - add validation on language deletion form
  * - limit language selection to the enabled languages on domain_conf form
- * - TODO ??? on domain_batch_form
+ * - allow enabling/disabling languages only for specific domains
  */
 function domain_locale_form_alter(&$form, $form_state, $form_id) {
-  //echo $form_id;
   switch ($form_id) {
     case 'locale_languages_delete_form':
       $form['#submit'][] = 'domain_locale_languages_delete_submit';
@@ -218,6 +218,22 @@ function domain_locale_form_alter(&$form, $form_state, $form_id) {
           }
         }
       }
+      break;
+
+    case 'locale_languages_overview_form':
+      global $_domain;
+      // Disable form elements in order to not allow changes from this form, as
+      // it would break other domains.
+      $form['enabled']['#disabled'] = TRUE;
+      $form['site_default']['#disabled'] = TRUE;
+      $form['actions']['submit']['#type'] = 'hidden';
+      // Build the correct link to where languages are enabled/disabled.
+      $link = 'admin/structure/domain/view/' . $_domain['domain_id'] .'/language';
+      // Warn admin how to enable/disable for the current domain.
+      drupal_set_message(
+        t('By using the module <em>Domain Locale</em> you must set default and enabled languages for each individual domain. Go to the page !link to make changes for this domain. You can still add new languages here.',
+          array('!link' => l($link, $link))),
+        'warning');
       break;
   }
 }
