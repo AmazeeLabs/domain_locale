@@ -9,6 +9,17 @@
  */
 
 /**
+ * Implements hook_permission().
+ */
+function domain_locale_permission() {
+  return array(
+    'domain_locale: access all languages on node form' => array(
+      'title' => t('Access all languages on node form'),
+    ),
+  );
+}
+
+/**
  * Helper function to retrieve domains that have a specific language enabled
  *
  * @param string $langcode
@@ -771,7 +782,7 @@ function _domain_locale_form_node_form_alter($form, &$form_state) {
   global $user;
 
   // Check if user is admin. If so, then change nothing.
-  if (in_array(variable_get('user_admin_role'), array_keys($user->roles))) {
+  if (user_access('domain_locale: access all languages on node form')) {
     return $form;
   }
 
