@@ -69,57 +69,6 @@ function domain_locale_FIXME_domainlinks($domain) {
 }
 
 /**
- * Alter translation links to exclude non-existing languages.
- *
- * This was a D6 hook without a direct equivalent. Likely candidate:
- * hook_url_outbound_alter().
- *
- * @see locale_url_outbound_alter()
- *
- * D6: hook_translation_link_alter(&$links, $path)
- *
- * Perform alterations on translation links.
- *
- * A translation link may need to point to a different path or use a translated
- * link text before going through l(), which will just handle the path aliases.
- */
-function domain_locale_FIXME_translation_link_alter($links, $path) {
-  global $_domain, $language;
-  //Ignore settings for the default domain
-  if (isset($_domain['domain_id'])) {
-    $domain_locale = domain_locale_lookup($_domain['domain_id']);
-    //Fallback case where for some reason domain language is not specified
-    if (count($domain_locale) < 1) {
-      $site_default = language_default();
-      $domain_locale[$site_default->language] = $site_default->language;
-      watchdog('domain_locale', 'There are currently no languages enabled for domain id %domain_id', array('domain_id' => $_domain['domain_id']), WATCHDOG_WARNING);
-    }
-    else {
-      $links_copy = $links;
-      $weights = array();
-      $name = array();
-      foreach ($links_copy as $lang => $lang_data) {
-        if (!array_key_exists($lang, $domain_locale)) {
-          unset($links[$lang]);
-        }
-        else {
-          $links[$lang]['weight'] = $domain_locale[$lang]['weight'];
-          $weights[$lang] = $domain_locale[$lang]['weight'];
-          $name[$lang] = $lang;
-          if ($lang == $language->language) {
-            $links[$lang]['attributes']['class'] .= ' active';
-          }
-        }
-      }
-      //Apply sorting to $links based on weight and then by language name
-      array_multisort($weights, SORT_ASC, $name, SORT_ASC, SORT_STRING, $links);
-      unset($weights);
-      unset($name);
-    }
-  }
-}
-
-/**
  * Remove all language settings from {domain_locale} for a domain.
  *
  * @param int $domain_id
@@ -546,8 +495,6 @@ function domain_locale_theme($existing, $type, $theme, $path) {
   }
   return $themes;
 }
-
-function afdl_reviewed_limit__________________________________________() {}
 
 /**
  * Perform alterations on language switcher links.
