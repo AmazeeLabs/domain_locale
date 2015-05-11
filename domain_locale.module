@@ -196,7 +196,7 @@ function domain_locale_form_alter(&$form, $form_state, $form_id) {
  *
  * @return
  *   Array language names indexed by language code. This array does not include
- *  'und' (Language neutral).
+ *  'und' (LANGUAGE_NONE).
  */
 function domain_locale_get_domain_languages() {
   global $_domain;
@@ -729,8 +729,8 @@ function _domain_locale_form_node_form_alter($form, &$form_state) {
   }
 
   // Check if there is there is to option of 'Language neutral' and keep it.
-  if (isset($form['language']['#options']['und'])) {
-    $tip['und'] = $form['language']['#options']['und'];
+  if (isset($form['language']['#options'][LANGUAGE_NONE])) {
+    $tip[LANGUAGE_NONE] = $form['language']['#options'][LANGUAGE_NONE];
   }
   else {
     $tip = array();
