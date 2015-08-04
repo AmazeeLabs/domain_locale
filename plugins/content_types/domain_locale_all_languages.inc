@@ -56,6 +56,7 @@ function domain_locale_all_languages_render($subtype, $conf, $args, $context) {
     }
     $variables['domains'][$domain['machine_name']] = array(
       'name' => $domain['sitename'],
+      'domain_id' => $domain['domain_id'],
       'path' => $path,
       'machine_name' => $domain['machine_name'],
     );

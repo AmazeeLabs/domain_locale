@@ -584,6 +584,9 @@ function domain_locale_language_switch_links_alter(array &$links, $type, $path) 
       // If we have additional languages to show, make sure they are at the end.
       if (!empty($additional_languages)) {
         foreach ($additional_languages as $key => $value) {
+          if (empty($links[$key])) {
+            continue;
+          }
           $lang = $links[$key];
           unset($links[$key]);
           $links[$key] = $lang;
@@ -845,5 +848,24 @@ function domain_locale_ctools_plugin_directory($module, $plugin) {
 function domain_locale_ctools_plugin_api($module, $api) {
   if ($module == 'page_manager' && $api == 'pages_default') {
     return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function domain_locale_preprocess_domain_locale_all_languages(&$variables) {
+  foreach($variables['domains'] as $domain_key => &$domain_values) {
+    // Prepare the language links to be shown in the template, for each domain.
+    $domain_values['language_links'] = array();
+    if (!empty($domain_values['languages'])) {
+      foreach ($domain_values['languages'] as $lang) {
+        $domain_values['language_links'][$lang->language] = array(
+          'href' => $domain_values['path'] . $lang->prefix,
+          'title' => $lang->native,
+          'attributes' => array(),
+        );
+      }
+    }
   }
 }

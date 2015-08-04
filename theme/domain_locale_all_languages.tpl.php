@@ -18,8 +18,8 @@ foreach ($domains as $machine_name => $domain) {
   print '<div class="domain-language-group">';
     $class = "language-group-title " . $domain['machine_name'];
     print '<div class="'. $class .'">' . check_plain($domain['name']) . '</div>';
-    foreach ($domain['languages'] as $lang) {
-      print '<div class="language-name">' . l($lang->native, $domain['path'] . $lang->prefix) . '</div>';
+    foreach ($domain['language_links'] as $lang) {
+      print '<div class="language-name">' . l($lang['title'], $lang['href'], $lang['attributes']) . '</div>';
     }
   print '</div>';
 }
