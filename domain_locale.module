@@ -269,6 +269,18 @@ function domain_locale_help($path, $arg) {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function domain_locale_permission() {
+  return array(
+    'skip domain locale redirect' => array(
+      'title' => t('Skip domain locale redirect'),
+      'description' => t('Skip the redirect if the language of the user does not match the language of the domain.'),
+    ),
+  );
+}
+
+/**
  * Implements hook_init().
  *
  * - Switch the current language to the site default is user language is not
@@ -280,6 +292,9 @@ function domain_locale_init() {
 
   // Skip the paths that start with 'sites/default'. They could be image styles.
   if (strpos($_GET['q'], 'sites/default/files') === 0) {
+    return;
+  }
+  if (user_access('skip domain locale redirect')) {
     return;
   }
   $enabled_domain_langs = domain_locale_lookup($_domain['domain_id']);
