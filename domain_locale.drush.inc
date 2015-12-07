@@ -31,10 +31,11 @@ function domain_locale_drush_command() {
  * Implements hook_drush_help().
  */
 function domain_locale_drush_help($section) {
-  $items = domain_locale_drush_command();
-  $name = $sectionpscp;
-  if (isset($items[$name])) {
-    return dt($items[$name]['description']);
+  switch ($section) {
+    case 'meta:domain_locale:title':
+      return dt('Domain Locale');
+    case 'meta:domain_locale:summary':
+      return dt('Adds specific language settings to a site.');
   }
 }
 
