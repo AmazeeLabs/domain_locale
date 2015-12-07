@@ -452,6 +452,18 @@ function domain_locale_menu() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function domain_locale_permission() {
+  $permissions = array(
+    'translate to any language' => array(
+      'title' => t('Translate content to any language available in the system, not just the languages enabled for the current domain.'),
+    ),
+  );
+  return $permissions;
+}
+
+/**
  * Reset Domain Locale settings to site language settings.
  *
  * @param int $domain_id
@@ -719,12 +731,13 @@ function domain_locale_form_node_form_alter(&$form, $form_state) {
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  * Called by domain_locale_form_node_form_alter
+ *
+ * Limits the options of available languages to translate to.
  */
 function _domain_locale_form_node_form_alter($form, &$form_state) {
-  global $user;
-
-  // Check if user is admin. If so, then change nothing.
-  if (in_array(variable_get('user_admin_role'), array_keys($user->roles))) {
+  // Check if user has permission to translate to any language. If so, then
+  // change nothing.
+  if (user_access('translate to any language')) {
     return $form;
   }
 
