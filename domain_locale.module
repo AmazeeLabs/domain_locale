@@ -884,3 +884,52 @@ function domain_locale_preprocess_domain_locale_all_languages(&$variables) {
     }
   }
 }
+
+/**
+ * Implements hook_language_negotiation_info().
+ */
+function domain_locale_language_negotiation_info() {
+  return array(
+    'domain_locale_provider' => array(
+      'callbacks' => array(
+        'language' => 'domain_locale_language_provider_callback',
+      ),
+      'file' => drupal_get_path('module', 'domain_locale') . '/domain_locale.module',
+      'name' => t('Domain locale'),
+      'description' => t('The language will be detected based on the allowed languages of the current domain, if there is exactly 1 match.'),
+    ),
+  );
+}
+
+/**
+ * Identify language via the current domain.
+ *
+ * @param $languages
+ *   An array of valid language objects.
+ *
+ * @return
+ *   A valid language code on success, FALSE otherwise.
+ */
+function domain_locale_language_provider_callback($languages) {
+  global $_domain;
+
+  $enabled_domain_langs = domain_locale_lookup($_domain['domain_id']);
+  if (!empty($enabled_domain_langs) && count($enabled_domain_langs) == 1) {
+    // Also we do this only if we do not have a language already in the URL.
+    include_once DRUPAL_ROOT . '/includes/locale.inc';
+    // The locale_language_from_url will remove the language information from
+    // the 'q', so the next call to locale_language_from_url() will fail.
+    $tmp_get_q = $_GET['q'];
+    $lang_from_url = locale_language_from_url($languages);
+    $_GET['q'] = $tmp_get_q;
+
+    if ($lang_from_url !== FALSE) {
+      return FALSE;
+    }
+
+    $lang_keys = array_keys($enabled_domain_langs);
+    return reset($lang_keys);
+  }
+
+  return FALSE;
+}
