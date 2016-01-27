@@ -578,20 +578,8 @@ function domain_locale_language_switch_links_alter(array &$links, $type, $path) 
       $links[$key]['original_title'] = $links[$key]['title'];
       $links[$key]['title'] = $_domain['sitename'] . ' (' . $links[$key]['original_title'] . ')';
     }
-    // If we are on the default domain, then we show a 'more' link, to lead to
-    // the page where the user can see all the domains and languages.
-    if ($_domain['machine_name'] == 'international') {
-      $links['more'] = array(
-        'href' => 'all_languages',
-        'title' => t('More...'),
-        'attributes' => array(
-          'class' => array('language-link'),
-        ),
-      );
-      // Make sure that the 'more' key is allowed, otherwise it will be filtered.
-      $languages['more'] = array('weight' => 0);
-    }
-    else {
+
+    if ($_domain['machine_name'] != 'international') {
       // If we are not on the global, then we show also the languages of the
       // international (main) domain.
       $default_domain = domain_load(domain_load_domain_id('international'));
@@ -619,6 +607,17 @@ function domain_locale_language_switch_links_alter(array &$links, $type, $path) 
         $languages = array_merge($languages, $additional_languages);
       }
     }
+    // Add a 'More' link that will point to the all languages page.
+    $links['more'] = array(
+      'href' => 'all_languages',
+      'title' => t('More...'),
+      'attributes' => array(
+        'class' => array('language-link'),
+      ),
+    );
+    // Make sure that the 'more' key is allowed, otherwise it will be filtered
+    // out.
+    $languages['more'] = array('weight' => 0);
   }
   $links = array_intersect_key($links, $languages);
 }
