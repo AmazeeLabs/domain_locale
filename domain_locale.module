@@ -565,61 +565,70 @@ function afdl_reviewed_limit__________________________________________() {}
  *   The current path.
  */
 function domain_locale_language_switch_links_alter(array &$links, $type, $path) {
-  global $_domain;
-  $languages = domain_locale_lookup($_domain['domain_id']);
+  global $language;
 
   // If we show the language switcher, then we have to alter the links a bit.
   if ($type == 'language') {
-    // For all the links we have at the moment, we add the machine name of the
-    // current domain as class.
-    foreach ($links as $key => $link) {
-      $links[$key]['attributes']['class']['domain_name'] = $_domain['machine_name'];
-      // Also, the title has to contain the title of the domain.
-      $links[$key]['original_title'] = $links[$key]['title'];
-      $links[$key]['title'] = $_domain['sitename'] . ' (' . $links[$key]['original_title'] . ')';
-    }
-
-    if ($_domain['machine_name'] != 'international') {
-      // If we are not on the global, then we show also the languages of the
-      // international (main) domain.
-      $default_domain = domain_load(domain_load_domain_id('international'));
-      $additional_languages = domain_locale_lookup($default_domain['domain_id']);
-      // If we have additional languages to show, make sure they are at the end.
-      if (!empty($additional_languages)) {
-        foreach ($additional_languages as $key => $value) {
-          if (empty($links[$key])) {
-            continue;
-          }
-          $lang = $links[$key];
-          unset($links[$key]);
-          $links[$key] = $lang;
-          $links[$key]['attributes']['class']['domain_name'] = $default_domain['machine_name'];
-          // We also have to change the path of the link to be absolute, because
-          // these languages are not available on this domain, but only on the
-          // international domain.
-          if ($links[$key]['href'] == '<front>') {
-            $links[$key]['href'] = '';
-          }
-          $links[$key]['href'] = $default_domain['path'] . $lang['language']->prefix . '/' . $links[$key]['href'];
-          $links[$key]['title'] = $default_domain['sitename'] . ' (' . $links[$key]['original_title'] . ')';
+    // We do a trick here: in order to be able to directly lead the user to the
+    // corresponding page for the language he selects, we make use of the
+    // alternate links that the i18n_hreflang module (if enabled) adds into the
+    // metatags of the page. Otherwise, the fallback is to go to the frontpage
+    // for that domain.
+    $html_head_tags = drupal_add_html_head();
+    $alternate_links = array();
+    $href_lang_def = variable_get('i18n_hreflang_default', '');
+    foreach ($html_head_tags as $key => $value) {
+      if (strpos($key, 'drupal_add_html_head_link:alternate:') === 0 && !empty($value['#attributes']['hreflang'])) {
+        // We need the value of the x-default language, not the 'x-default'
+        // string here.
+        $href_lang = $value['#attributes']['hreflang'];
+        if ($href_lang == 'x-default') {
+          $href_lang = $href_lang_def;
         }
-        // Add the additional languages to the allowed languages.
-        $languages = array_merge($languages, $additional_languages);
+        $alternate_links[$href_lang]['href'] = $value['#attributes']['href'];
       }
     }
-    // Add a 'More' link that will point to the all languages page.
-    $links['more'] = array(
-      'href' => 'all_languages',
-      'title' => t('More...'),
-      'attributes' => array(
-        'class' => array('language-link'),
-      ),
-    );
-    // Make sure that the 'more' key is allowed, otherwise it will be filtered
-    // out.
-    $languages['more'] = array('weight' => 0);
+    $all_languages = array();
+    $domains = domain_domains();
+    foreach ($domains as $domain) {
+      $languages = domain_locale_lookup($domain['domain_id']);
+      // In our case, we should have only one single domain variant. This will
+      // be used for the path of the link.
+      $domain_variant = (!empty($domain['variants'])) ? reset($domain['variants']) : NULL;
+      // Add the domain machine name as the class link for all the languages of
+      // this domain.
+      foreach ($languages as $lang_key => $lang_value) {
+        $all_languages[$lang_key] = $lang_value;
+        if (!empty(($links[$lang_key]))) {
+          $links[$lang_key]['attributes']['class']['domain_name'] = $domain['machine_name'];
+          // Also, the title has to contain the title of the domain.
+          $links[$lang_key]['original_title'] = $links[$lang_key]['title'];
+          $links[$lang_key]['title'] = $domain['sitename'] . ' (' . $links[$lang_key]['original_title'] . ')';
+          // If the link appears in the alternate (hreflang) links, then just
+          // use the href from there. Otherwise we will lead the user to the
+          // frontpage.
+          if (!empty($alternate_links[$lang_key])) {
+            $links[$lang_key]['href'] = $alternate_links[$lang_key]['href'];
+          }
+          else {
+            // Lead the user all the time to the frontpage.
+            $links[$lang_key]['href'] = '';
+            // We also have to change the path of the link to be absolute, in case
+            // the languages are not available on the current domain.
+            $path = !empty($domain_variant) ? $domain['scheme'] . '://' . $domain_variant->path . '/' : $domain['path'];
+            $links[$lang_key]['href'] = $path . $links[$lang_key]['language']->prefix . '/' . $links[$lang_key]['href'];
+          }
+          // Because we now use only absolute paths, the url() function will not
+          // add the active class to the links. So, we add the active class to
+          // the link if the link points to the language of the current page.
+          if ($lang_key == $language->language) {
+            $links[$lang_key]['attributes']['class']['active'] = 'active';
+          }
+        }
+      }
+    }
+    $links = array_intersect_key($links, $all_languages);
   }
-  $links = array_intersect_key($links, $languages);
 }
 
 
