@@ -624,11 +624,26 @@ function domain_locale_language_switch_links_alter(array &$links, $type, $path) 
           if ($lang_key == $language->language) {
             $links[$lang_key]['attributes']['class']['active'] = 'active';
           }
+          // Add the weight information fro the domain so that the links can be
+          // sorted afterwards.
+          $links[$lang_key]['weight'] = $domain['weight'];
         }
       }
     }
     $links = array_intersect_key($links, $all_languages);
+    uasort($links, '_domain_locale_weight_sort');
   }
+}
+
+/**
+ * Function callback used for sorting an array based on the 'weight' attribute.
+ *
+ * Used in domain_locale_language_switch_links_alter().
+ */
+function _domain_locale_weight_sort($a, $b) {
+  $a = (array) $a + array('weight' => 0);
+  $b = (array) $b + array('weight' => 0);
+  return $a['weight'] < $b['weight'] ? -1 : 1;
 }
 
 
