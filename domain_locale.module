@@ -665,6 +665,28 @@ function _domain_locale_get_domains_languages() {
 }
 
 /**
+ * Returns the domains for which a specific language is available.
+ *
+ * @param string $language_code
+ *  Optional, the language code for which to return the domains.
+ */
+function domain_locale_get_domains_for_language($language_code = NULL) {
+  $domains_per_language = &drupal_static(__FUNCTION__);
+  if (!isset($domains_per_language)) {
+    $domain_list = domain_locale_list();
+    foreach ($domain_list as $domain_id => $languages) {
+      foreach ($languages as $lang_code => $lang_data) {
+        $domains_per_language[$lang_code][] = domain_load($domain_id);
+      }
+    }
+  }
+  if (!empty($language_code)) {
+    return $domains_per_language[$language_code];
+  }
+  return $domains_per_language;
+}
+
+/**
  * Implements hook_features_api().
  */
 function domain_locale_features_api() {
