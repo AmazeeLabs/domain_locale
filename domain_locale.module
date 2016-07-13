@@ -311,7 +311,7 @@ function domain_locale_language_default() {
 
   // Domain Conf stores simple values (strings) so populate language object.
   $language_default = isset($domain_language_default)
-    ? domain_locale_language_load($domain_language_default)
+    ? domain_locale_language_load($domain_language_default->language)
     : language_default();
 
   return $language_default;
