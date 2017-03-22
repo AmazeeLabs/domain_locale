@@ -311,7 +311,7 @@ function domain_locale_language_default() {
 
   // Domain Conf stores simple values (strings) so populate language object.
   $language_default = isset($domain_language_default)
-    ? domain_locale_language_load($domain_language_default->language)
+    ? domain_locale_language_load($domain_language_default)
     : language_default();
 
   return $language_default;
@@ -362,12 +362,16 @@ function domain_locale_language_list($language_names) {
  *
  * @see domain_locale_language_default()
  *
- * @param string $langcode
+ * @param string|object $langcode
+ *  The language code as a string, or an object with the 'language' attribute.
  *
  * @return object
  *   Provides output similar to language_default() in bootstrap process.
  */
 function domain_locale_language_load($langcode) {
+  if (is_object($langcode)) {
+    $langcode = $langcode->language;
+  }
   $sql = <<<SQL
     SELECT
       language, name, native, direction, enabled, plurals, formula, domain,
