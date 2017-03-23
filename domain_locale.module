@@ -266,7 +266,11 @@ function domain_locale_init() {
         $url_suffix = '';
       }
 
-      drupal_goto($http . $_domain['subdomain'] . $url_suffix);
+      // drupal_goto($http . $_domain['subdomain'] . $url_suffix);
+      // @todo: This is still experimental, needs more testing to check if there
+      // can be any side effects. When redirecting because of a wrong language
+      // used for the current domain, we should keep the URL.
+      drupal_goto($http . $_domain['subdomain'] . $url_suffix . '/' . $_GET['q']);
     }
   }
 }
